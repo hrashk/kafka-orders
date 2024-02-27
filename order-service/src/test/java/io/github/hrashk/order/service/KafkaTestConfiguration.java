@@ -1,12 +1,14 @@
-package io.github.hrashk.order.service.broker;
+package io.github.hrashk.order.service;
 
+import io.github.hrashk.order.service.broker.OrderEvent;
+import io.github.hrashk.order.service.broker.OrderStatus;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -14,16 +16,16 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.Map;
 
-@Configuration
-public class KafkaConfiguration {
+@TestConfiguration
+public class KafkaTestConfiguration {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${app.kafka.status.group-id}")
-    private String statusGroupId;
+    @Value("${app.kafka.order.group-id}")
+    private String orderGroupId;
 
     @Bean
-    public ProducerFactory<String, OrderEvent> kafkaOrderProducerFactory() {
+    public ProducerFactory<String, OrderStatus> kafkaStatusProducerFactory() {
         Map<String, Object> configs = Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
@@ -33,26 +35,26 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public KafkaTemplate<String, OrderEvent> kafkaTemplate(ProducerFactory<String, OrderEvent> factory) {
+    public KafkaTemplate<String, OrderStatus> kafkaStatusTemplate(ProducerFactory<String, OrderStatus> factory) {
         return new KafkaTemplate<>(factory);
     }
 
     @Bean
-    public ConsumerFactory<String, OrderStatus> kafkaStatusConsumerFactory() {
+    public ConsumerFactory<String, OrderEvent> kafkaOrderConsumerFactory() {
         Map<String, Object> configs = Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-                ConsumerConfig.GROUP_ID_CONFIG, statusGroupId,
+                ConsumerConfig.GROUP_ID_CONFIG, orderGroupId,
                 JsonDeserializer.TRUSTED_PACKAGES, "*");
 
         return new DefaultKafkaConsumerFactory<>(configs, new StringDeserializer(), new JsonDeserializer<>());
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderStatus> statusListenerContainerFactory(
-            ConsumerFactory<String, OrderStatus> consumerFactory) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, OrderStatus>();
+    public ConcurrentKafkaListenerContainerFactory<String, OrderEvent> eventListenerContainerFactory(
+            ConsumerFactory<String, OrderEvent> consumerFactory) {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, OrderEvent>();
         factory.setConsumerFactory(consumerFactory);
 
         return factory;
