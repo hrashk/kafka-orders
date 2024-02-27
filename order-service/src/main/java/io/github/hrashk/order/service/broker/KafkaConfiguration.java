@@ -22,6 +22,9 @@ public class KafkaConfiguration {
     @Value("${app.kafka.order.group-id}")
     private String orderGroupId;
 
+    @Value("${app.kafka.status.group-id}")
+    private String statusGroupId;
+
     @Bean
     public ProducerFactory<String, OrderEvent> kafkaOrderProducerFactory() {
         Map<String, Object> configs = Map.of(
@@ -50,9 +53,30 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderEvent> concurrentKafkaListenerContainerFactory(
+    public ConcurrentKafkaListenerContainerFactory<String, OrderEvent> eventListenerContainerFactory(
             ConsumerFactory<String, OrderEvent> consumerFactory) {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, OrderEvent>();
+        factory.setConsumerFactory(consumerFactory);
+
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, OrderStatus> kafkaStatusConsumerFactory() {
+        Map<String, Object> configs = Map.of(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
+                ConsumerConfig.GROUP_ID_CONFIG, statusGroupId,
+                JsonDeserializer.TRUSTED_PACKAGES, "*");
+
+        return new DefaultKafkaConsumerFactory<>(configs, new StringDeserializer(), new JsonDeserializer<>());
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, OrderStatus> statusListenerContainerFactory(
+            ConsumerFactory<String, OrderStatus> consumerFactory) {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, OrderStatus>();
         factory.setConsumerFactory(consumerFactory);
 
         return factory;

@@ -17,7 +17,7 @@ import java.util.UUID;
 public class KafkaTestListener {
     List<OrderEvent> orderEvents = new ArrayList<>();
     @KafkaListener(topics = "${app.kafka.order.topic}", groupId = "${app.kafka.order.group-id}",
-            containerFactory = "concurrentKafkaListenerContainerFactory")
+            containerFactory = "eventListenerContainerFactory")
     public void listen(@Payload OrderEvent message,
                        @Header(value = KafkaHeaders.RECEIVED_KEY, required = false) UUID key,
                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
