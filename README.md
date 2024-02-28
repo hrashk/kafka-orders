@@ -13,12 +13,6 @@ You will need a running kafka instance that you can spin up with docker-compose.
 sh docker/docker-start.sh
 ```
 
-You may stop the instance once you're finished.
-
-```bash
-sh docker/docker-stop.sh
-```
-
 Once kafka is up, run both apps in separate terminals:
 
 ```bash
@@ -27,6 +21,12 @@ java -jar order-status-service/target/order-status-service-0.0.1-SNAPSHOT.jar
 
 ```bash
 java -jar order-service/target/order-service-0.0.1-SNAPSHOT.jar
+```
+
+You may stop the kafka once you're finished experimenting.
+
+```bash
+sh docker/docker-stop.sh
 ```
 
 ## Available commands
