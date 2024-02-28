@@ -1,1 +1,14 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+
+app:
+  kafka:
+    order:
+      topic: order-topic
+      group-id: order-group-id
+    status:
+      topic: order-status-topic
+      group-id: order-group-id
+
 
