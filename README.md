@@ -3,7 +3,8 @@
 ```bash
 ./mvnw clean package
 ```
-will compile the app, run the integration tests and produce jar files in the target sub-folders.
+will compile two sub-modules with order services, run their integration tests
+and produce jar files in the target sub-folders.
 
 ## Running from jar files
 You will need a running kafka instance that you can spin up with docker-compose.
@@ -13,6 +14,7 @@ sh docker/docker-start.sh
 ```
 
 You may stop the instance once you're finished.
+
 ```bash
 sh docker/docker-stop.sh
 ```
@@ -27,18 +29,10 @@ java -jar order-status-service/target/order-status-service-0.0.1-SNAPSHOT.jar
 java -jar order-service/target/order-service-0.0.1-SNAPSHOT.jar
 ```
 
-## Running with maven
-
-The following command will run the app from the compiled sources.
-You'll need a running postgres db as described in the next section.
-```bash
-./mvnw spring-boot:run
-```
-
 ## Available commands
 
 When you send an order event to the order service, it forwards it to the order status service via a kafka topic.
-The latter responds to with a status data via another topic. The former service then prints out the received status.
+The latter responds with a status event via another topic. The order service then prints out the received status.
 
 You can post the json payload via postman or via curl in the command line:
 
